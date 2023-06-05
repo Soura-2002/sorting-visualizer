@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sorting Visualizer</title>
+  <style>
+    #container {
+      display: flex;
+      align-items: flex-end;
+      height: 400px;
+      padding: 20px;
+    }
+
+    .bar {
+      margin-right: 2px;
+      width: 10px;
+      background-color: blue;
+    }
+
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <button onclick="resetArray()">Generate New Array</button>
+  <button onclick="bubbleSort()">Bubble Sort</button>
+  <button onclick="selectionSort()">Selection Sort</button>
+  <button onclick="insertionSort()">Insertion Sort</button>
+  <button onclick="mergeSort()">Merge Sort</button>
+  <button onclick="heapSort()">Heap Sort</button>
+
+  <script>
+    let array = [];
+
+    // Generate a new random array
+    function resetArray() {
+      array = [];
+      const container = document.getElementById("container");
+      container.innerHTML = "";
+
+      for (let i = 0; i < 50; i++) {
+        const value = Math.floor(Math.random() * 400) + 5;
+        array.push(value);
+
+        const bar = document.createElement("div");
+        bar.style.height = `${value}px`;
+        bar.className = "bar";
+        container.appendChild(bar);
+      }
+    }
+
+    // Bubble Sort Algorithm
+    async function bubbleSort() {
+      for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array.length - i - 1; j++) {
+          if (array[j] > array[j + 1]) {
+            await swap(j, j + 1);
+          }
+        }
+      }
+    }
+
+    // Selection Sort Algorithm
+    async function selectionSort() {
+      for (let i = 0; i < array.length; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < array.length; j++) {
+          if (array[j] < array[minIndex]) {
+            minIndex = j;
+          }
+        }
+        await swap(i, minIndex);
+      }
+    }
+
+    // Insertion Sort Algorithm
+    async function insertionSort() {
+      for (let i = 1; i < array.length; i++) {
+        let key = array[i];
+        let j = i - 1;
+        while (j >= 0 && array[j] > key) {
+          array[j + 1] = array[j];
+          j--;
+        }
+        array[j + 1] = key;
+        await delay(10);
+        updateVisualizer();
+      }
+    }
+
+    // Merge Sort Algorithm
+    async function mergeSort() {
+      await performMergeSort(0, array.length - 1);
+    }
+
+    async function performMergeSort(start, end) {
+      if (start < end) {
+        const mid = Math.floor((start + end) / 2);
+        await performMergeSort(start, mid);
+        await performMergeSort(mid + 1, end);
+        await merge(start, mid, end);
+      }
+    }
+
+    async function merge(start, mid, end) {
+      const sortedArray = [];
+      let i = start;
+      let j = mid + 1;
+      let k = 0;
+
+      while (i <= mid && j <= end) {
+        if (array[i] <= array[j]) {
+          sortedArray[k++] = array[i++];
+        } else {
+          sortedArray[k++] = array[j++];
+        }
+      }
+
+      while (i <= mid) {
+        sortedArray[k++] = array[i++];
+      }
+
+      while (j <= end) {
+        sortedArray[k++] = array[j++];
+      }
+
+      for (let x = start, y = 0; x <= end; x++, y++) {
+        array[x] = sortedArray[y];
+        await delay(10);
+        updateVisualizer();
+      }
+    }
+
+    // Heap Sort Algorithm
+    async function heapSort() {
+      const n = array.length;
+
+      for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        await heapify(n, i);
+      }
+
+      for (let i = n - 1; i > 0; i--) {
+        await swap(0, i);
+        await heapify(i, 0);
+      }
+    }
+
+    async function heapify(n, i) {
+      let largest = i;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+
+      if (left < n && array[left] > array[largest]) {
+        largest = left;
+      }
+
+      if (right < n && array[right] > array[largest]) {
+        largest = right;
+      }
+
+      if (largest !== i) {
+        await swap(i, largest);
+        await heapify(n, largest);
+      }
+    }
+
+    // Helper function to swap two elements in the array
+    async function swap(i, j) {
+      await delay(10);
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+      updateVisualizer();
+    }
+
+    // Helper function to update the visualizer
+    function updateVisualizer() {
+      const bars = document.getElementsByClassName("bar");
+      for (let i = 0; i < array.length; i++) {
+        bars[i].style.height = `${array[i]}px`;
+      }
+    }
+
+    // Helper function for delaying execution
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    // Generate a new array when the page loads
+    window.onload = resetArray;
+  </script>
+</body>
+</html>
